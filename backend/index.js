@@ -4,31 +4,25 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import router from "./routes/index.js";
 import cookieParser from "cookie-parser";
-
+// Initialize dotenv to load environment variables from .env file
 dotenv.config();
 
-const app = express();
+const app = express()
+app.use(cors({
+    origin : process.env.FRONTEND_URL,
+    credentials : true
+}))
+app.use(express.json())
+app.use(cookieParser())
 
-// Enable CORS
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL || "https://sports-ecommerce-imad.vercel.app",
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
+app.use("/api",router)
 
-app.use(express.json());
-app.use(cookieParser());
+const PORT = 8080 || process.env.PORT
 
-app.use("/api", router);
 
-const PORT = process.env.PORT || 8080;
-
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log("Connected to DB");
-    console.log(`Server is running on port ${PORT}`);
-  });
-});
+connectDB().then(()=>{
+    app.listen(PORT,()=>{
+        console.log("connnect to DB")
+        console.log("Server is running "+PORT)
+    })
+})
