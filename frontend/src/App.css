@@ -19,3 +19,15 @@
 .scrollbar-none::-webkit-scrollbar{
 display: none;
 }
+
+/* Styles for showing the category list only on desktop */
+.category-list-desktop {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .category-list-desktop {
+    display: block;
+  }
+}
+
