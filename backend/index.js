@@ -16,7 +16,7 @@ app.use(cookieParser());
 
 // CORS middleware function
 const allowCors = (fn) => async (req, res) => {
-  const allowedOrigins = ['https://sports-ecommerce-imad-nm1u-a3x5oikle-mhamad-farhats-projects.vercel.app'];
+  const allowedOrigins = ['https://sports-ecommerce-imad-nm1u.vercel.app'];
 
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
