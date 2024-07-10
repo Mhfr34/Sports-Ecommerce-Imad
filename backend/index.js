@@ -17,7 +17,7 @@ app.use(cookieParser());
 // CORS middleware function
 const allowCors = (fn) => async (req, res) => {
   res.setHeader('Access-Control-Allow-Credentials', true);
-  res.setHeader('Access-Control-Allow-Origin', 'req.headers.origin'); // or req.headers.origin
+  res.setHeader('Access-Control-Allow-Origin', '*'); // or req.headers.origin
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   res.setHeader(
     'Access-Control-Allow-Headers',
