@@ -7,22 +7,27 @@ import cookieParser from "cookie-parser";
 // Initialize dotenv to load environment variables from .env file
 dotenv.config();
 
-const app = express()
-app.use(cors({
-    origin : process.env.FRONTEND_URL,
-    credentials : true
-}))
-app.use(express.json())
-app.use(cookieParser())
+const app = express();
 
-app.use("/api",router)
+// Middleware to enable CORS
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
+app.use(express.json({ limit: '50mb' }));
+app.use(cookieParser());
+app.use("/api", router);
 
-const PORT = 8080 || process.env.PORT
+// Middleware to parse JSON requests
+app.use(express.json());
 
+const PORT = process.env.PORT || 8080;
 
-connectDB().then(()=>{
-    app.listen(PORT,()=>{
-        console.log("connnect to DB")
-        console.log("Server is running "+PORT)
-    })
-})
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log("connected to DB");
+    console.log(`Server is running on port ${PORT}`);
+  });
+});
