@@ -1,31 +1,47 @@
+// Import necessary modules
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import router from "./routes/index.js";
 import cookieParser from "cookie-parser";
 
-dotenv.config(); // Initialize dotenv to load environment variables from .env file
+// Initialize dotenv to load environment variables from .env file
+dotenv.config();
 
 const app = express();
 
-// CORS middleware configuration
-app.use(cors({
-    origin: process.env.FRONTEND_URL, // Allow requests from this origin
-    credentials: true, // Allow credentials (cookies, authorization headers, etc.)
-    allowedHeaders: ["Authorization", "Content-Type"] // Specify allowed headers
-}));
+// Middleware to parse JSON requests
+app.use(express.json({ limit: '50mb' }));
+app.use(cookieParser());
 
-app.use(express.json()); // Parse JSON bodies
-app.use(cookieParser()); // Parse cookies
+// CORS middleware function
+const allowCors = (fn) => async (req, res) => {
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Origin', '*'); // or req.headers.origin
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
 
-app.use("/api", router); // Route requests to /api to the router
+  // Handle preflight requests (OPTIONS)
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
 
-const PORT = process.env.PORT || 8080; // Use the port from environment variables or default to 8080
+  // Call the actual request handler function
+  return await fn(req, res);
+};
 
+// Apply CORS middleware to all routes under /api
+app.use("/api", allowCors(router));
+
+// Connect to database
+const PORT = process.env.PORT || 8080;
 connectDB().then(() => {
-    app.listen(PORT, () => {
-        console.log("Connected to DB");
-        console.log("Server is running on port " + PORT);
-    });
+  app.listen(PORT, () => {
+    console.log("Connected to DB");
+    console.log(`Server is running on port ${PORT}`);
+  });
 });
