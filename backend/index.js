@@ -8,22 +8,46 @@ import cookieParser from "cookie-parser";
 // Initialize dotenv to load environment variables from .env file
 dotenv.config();
 
-const app = express()
-app.use(cors({
-    origin : process.env.FRONTEND_URL,
-    credentials : true
-}))
-app.use(express.json())
-app.use(cookieParser())
+const app = express();
 
-app.use("/api",router)
+// Middleware to parse JSON requests
+app.use(express.json({ limit: '50mb' }));
+app.use(cookieParser());
 
-const PORT = 8080 || process.env.PORT
+// CORS middleware function
+const allowCors = (fn) => async (req, res) => {
+  const allowedOrigins = process.env.ALLOWED_ORIGINS.split(',');
 
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
 
-connectDB().then(()=>{
-    app.listen(PORT,()=>{
-        console.log("connnect to DB")
-        console.log("Server is running "+PORT)
-    })
-})
+  res.setHeader('Access-Control-Allow-Credentials', true);
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS, PATCH, DELETE, POST, PUT');
+  res.setHeader(
+    'Access-Control-Allow-Headers',
+    'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version'
+  );
+
+  // Handle preflight requests (OPTIONS)
+  if (req.method === 'OPTIONS') {
+    res.status(200).end();
+    return;
+  }
+
+  // Call the actual request handler function
+  return await fn(req, res);
+};
+
+// Apply CORS middleware to all routes under /api
+app.use("/api", allowCors(router));
+
+// Connect to database
+const PORT = process.env.PORT || 8080;
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log("Connected to DB");
+    console.log(`Server is running on port ${PORT}`);
+  });
+});
