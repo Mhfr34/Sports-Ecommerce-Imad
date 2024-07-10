@@ -29,7 +29,7 @@ import orderController from "../controllers/order/orderController.js";
 router.post("/signup", userSignUpController);
 router.post("/signin", userSignInController);
 router.get("/user-details", authToken, userDetailsController);
-router.get("/userLogout", userLogout);
+router.post("/userLogout", userLogout);
 
 //admin panel
 router.get("/all-users", authToken, allUsers);
